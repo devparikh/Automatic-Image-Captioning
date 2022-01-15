@@ -61,3 +61,10 @@ for caption in captions:
 
   # After preparing our validation captions for the training of the model, we will append all of the sequences of captions to caption_set
   caption_set.append(caption)
+
+# Zipping together both the image dataset and the caption dataset, so that we can randomly take 90% of them for training and 10% for testing later:
+image_captioning = list(zip(image_dataset, caption_set))
+random.shuffle(image_captioning)
+
+#print(image_captioning)
+
