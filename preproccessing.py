@@ -31,10 +31,10 @@ for image in os.listdir(image_set):
   normalize_array = np.zeros((299,299))
   image = cv2.normalize(image, normalize_array, 0, 255, cv2.NORM_MINMAX)
 
-  # The guassian blur and normalization remove a small amount of noise, but with fastNiMeansDenoisingColored you have remove significatly more noise
+  # The guassian blur and normalization remove a small amount of noise, but with fastNiMeansDenoisingColored will denoise the image significantly more
   image = cv2.fastNlMeansDenoisingColored(image,None,10,10,7,21)
 
-  #cv2_imshow(image)
+  cv2_imshow(image)
 
   image_dataset.append(image)
 
@@ -47,8 +47,9 @@ captions.head()
 
 for caption in captions:
   # Note that the since our captions are just used as a validation set by the model, we don't have to do any special preprocessing
-  # We just have to do 2 main things:
-  # The first thing is to convert our data from texts to sequences of numbers as the language of ML models are numbers:
+  # We have to execute 2 main steps:
+  # The first step is to convert our data from texts to sequences of numbers
+  # The second step is to limit our sequences to a certain length, to perform this we will have to truncate some sequences while padding others
 
   # Define that Tokenizer that we are going to use to convert the texts to sequences of numbers
   tokenizer = Tokenizer(num_words = 100, char_level=False, oov_token="UNK")
