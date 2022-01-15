@@ -16,6 +16,7 @@ image_set = "/content/Images"
 image_dataset = []
 
 image_size = 299
+batch_size = 32
 
 for image in os.listdir(image_set):
   # Going to the image in the folder containing the image dataset and reading the file
