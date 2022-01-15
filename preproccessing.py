@@ -35,7 +35,7 @@ for image in os.listdir(image_set):
   # The guassian blur and normalization remove a small amount of noise, but with fastNiMeansDenoisingColored will denoise the image significantly more
   image = cv2.fastNlMeansDenoisingColored(image,None,10,10,7,21)
 
-  cv2_imshow(image)
+  cv2.imshow(image)
 
   image_dataset.append(image)
 
@@ -44,7 +44,7 @@ caption_set = []
 
 image_captions = pd.read_csv("/content/Images/captions.txt")
 captions = image_captions["caption"]
-captions.head()
+print(captions.head())
 
 for caption in captions:
   # Note that the since our captions are just used as a validation set by the model, we don't have to do any special preprocessing
