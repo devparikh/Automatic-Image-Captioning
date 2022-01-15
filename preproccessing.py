@@ -5,11 +5,8 @@ import cv2
 import random
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import re
-from google.colab.patches import cv2_imshow
 import os
 import tensorflow as tf
-import numpy as np
 
 # Importing the images from Google Colab
 image_set = "/content/Images"
