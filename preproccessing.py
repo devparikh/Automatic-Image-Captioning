@@ -29,9 +29,6 @@ for image in os.listdir(image_set):
   normalize_array = np.zeros((299,299))
   image = cv2.normalize(image, normalize_array, 0, 255, cv2.NORM_MINMAX)
 
-  # The guassian blur and normalization remove a small amount of noise, but with fastNiMeansDenoisingColored will denoise the image significantly more
-  image = cv2.fastNlMeansDenoisingColored(image,None,10,10,7,21)
-
   cv2.imshow(image)
 
   image_dataset.append(image)
@@ -62,9 +59,17 @@ for caption in captions:
   # After preparing our validation captions for the training of the model, we will append all of the sequences of captions to caption_set
   caption_set.append(caption)
 
-# Zipping together both the image dataset and the caption dataset, so that we can randomly take 90% of them for training and 10% for testing later
+# Zipping together the 2 datasets 
 image_captioning = list(zip(image_dataset, caption_set))
+# Shuffling the zipped dataset because we don't want sets to be in orders when we split into training and testing data
 random.shuffle(image_captioning)
 
-#print(image_captioning)
+# We are getting the split percentage for the training and testing sets 90% Training and 10% Testing
+split_percentage = int(0.9*len(image_captioning))
 
+# Splitting up the training and testing sets
+train_image_captioning = image_captioning[:split_percentage]
+test_image_captioning = image_captioning[split_percentage:]
+
+print(len(test_image_captioning))
+print(len(train_image_captioning))
