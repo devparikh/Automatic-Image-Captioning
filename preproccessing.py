@@ -73,3 +73,19 @@ test_image_captioning = image_captioning[split_percentage:]
 
 print(len(test_image_captioning))
 print(len(train_image_captioning))
+
+# Unzipping the zipped training dataset into images and captions
+unzipped_training_dataset = list(zip(*train_image_captioning))
+
+training_images = []
+training_captions = []
+
+# Iterating over the new list where position 1 contains a list of images and position 2 contains all of the captions
+for image in unzipped_training_dataset[0]:
+  training_images.append(image)
+
+for caption in unzipped_training_dataset[1]:
+  training_captions.append(caption)
+
+print(len(training_images))
+print(len(training_captions))
