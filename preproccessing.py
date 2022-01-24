@@ -101,3 +101,10 @@ image_caption_separation(unzipped_validation_dataset, validation_images, validat
 
 print(len(training_images))
 print(len(training_captions))
+
+# Converting the datasets to numpy arrays for the models
+training_images = np.array(training_images)
+validation_images = np.array(validation_images)
+
+print(training_images.shape)
+print(validation_images.shape)
