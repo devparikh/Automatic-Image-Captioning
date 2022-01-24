@@ -1,12 +1,12 @@
 # Importing all the libraries need for this project
 import pandas as pd
-import glob
 import cv2
 import random
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import os
 import tensorflow as tf
+import numpy as np
 
 # Importing the images from Google Colab
 image_set = "/content/Images"
@@ -14,6 +14,10 @@ image_dataset = []
 
 image_size = 299
 batch_size = 32
+epochs = 20
+
+num_distinct_words = 5000
+embedding_dim = 10
 
 for image in os.listdir(image_set):
   # Going to the image in the folder containing the image dataset and reading the file
@@ -47,14 +51,14 @@ for caption in captions:
   # The second step is to limit our sequences to a certain length, to perform this we will have to truncate some sequences while padding others
 
   # Define that Tokenizer that we are going to use to convert the texts to sequences of numbers
-  tokenizer = Tokenizer(num_words = 100, char_level=False, oov_token="UNK")
+  tokenizer = Tokenizer(num_words = 50, char_level=False, oov_token="UNK")
   # Take the caption and fit it on this tokenizer
   tokenizer.fit_on_texts(caption)
 
   # Converting the text into sequences of numbers
   caption = tokenizer.texts_to_sequences(caption)
   # padding the inputs to make sure that they are all the same length when inputted into the model
-  padded_captions = tf.keras.preprocessing.sequence.pad_sequences(caption, maxlen=100, dtype="int32", padding="post", truncating="post", value=0)
+  padded_captions = tf.keras.preprocessing.sequence.pad_sequences(caption, maxlen=50, dtype="int32", padding="post", truncating="post", value=0)
 
   # After preparing our validation captions for the training of the model, we will append all of the sequences of captions to caption_set
   caption_set.append(caption)
@@ -69,23 +73,31 @@ split_percentage = int(0.9*len(image_captioning))
 
 # Splitting up the training and testing sets
 train_image_captioning = image_captioning[:split_percentage]
-test_image_captioning = image_captioning[split_percentage:]
+validation_image_captioning = image_captioning[split_percentage:]
 
-print(len(test_image_captioning))
+print(len(validation_image_captioning))
 print(len(train_image_captioning))
 
 # Unzipping the zipped training dataset into images and captions
 unzipped_training_dataset = list(zip(*train_image_captioning))
+unzipped_validation_dataset = list(zip(*validation_image_captioning))
 
 training_images = []
 training_captions = []
 
-# Iterating over the new list where position 1 contains a list of images and position 2 contains all of the captions
-for image in unzipped_training_dataset[0]:
-  training_images.append(image)
+validation_images = []
+validation_captions = []
 
-for caption in unzipped_training_dataset[1]:
-  training_captions.append(caption)
+def image_caption_separation(image_captioning_set, new_image_dataset, new_caption_dataset):
+    # Iterating over the new list where position 1 contains a list of images and position 2 contains all of the captions
+    for image in image_captioning_set[0]:
+        new_image_dataset.append(image)
+
+    for caption in image_captioning_set[1]:
+        new_caption_dataset.append(caption)
+
+image_caption_separation(unzipped_training_dataset, training_images, training_captions)
+image_caption_separation(unzipped_validation_dataset, validation_images, validation_captions)
 
 print(len(training_images))
 print(len(training_captions))
