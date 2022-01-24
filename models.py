@@ -1,16 +1,12 @@
 # Importing all the libraries for the model part of the project
-import pandas as pd
-import cv2
-import random
+import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.layers import Embedding, LSTM, Dense, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.models import Sequential
-import os
 import tensorflow as tf
 import numpy as np
-from torch import softmax
 from preprocessing import *
 
 # Passing the images through the pre-trained CNN
@@ -44,13 +40,10 @@ model.add(BatchNormalization(momentum=0.9))
 model.add(LSTM(10, activation="relu", return_sequences=True, dropout=0.4))
 
 # This is a temporary layer, and once I learn how to implement Beam Search that layer will be used instead
-model.add(Dense(num_distinct_words, activation=softmax))
+model.add(Dense(num_distinct_words, activation="softmax"))
 
 model.compile(optimizer=Adam(1e-3),
               loss=SparseCategoricalCrossentropy(),
               metrics=["accuracy"])
 
-model.fit(training_images, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[validation_image_captioning])
-
-
-
+model.fit(training_images, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[validation_images, validation_captions])
