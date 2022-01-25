@@ -33,10 +33,10 @@ model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
 
 # Stacked LSTM layers
 model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.2))
-model.add(BatchNormalization(momentum=0.8))
+model.add(BatchNormalization(momentum=0.6))
 model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.25))
 model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.3))
-model.add(BatchNormalization(momentum=0.9))
+model.add(BatchNormalization(momentum=0.7))
 model.add(LSTM(10, activation="relu", return_sequences=True, dropout=0.4))
 
 # This is a temporary layer, and once I learn how to implement Beam Search that layer will be used instead
