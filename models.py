@@ -22,13 +22,14 @@ output_layer = loading_model.layer[-1].output
 
 # Creating the model
 image_model = tf.keras.Model(input_layer, output_layer)
-# Getting the output from the network
 
 feature_map_dataset = []
 batch_training_set = []
+
 batching = 0
 for image in range(training_images[batching], training_images[batching+32]):
     batch_training_set.append(image)
+    # Getting the output from the network
     feature_maps = image_model(batch_training_set)
     batching += 32
     for feature in feature_maps:
