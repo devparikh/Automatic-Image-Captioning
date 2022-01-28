@@ -13,8 +13,8 @@ image_set = "/content/Images"
 image_dataset = []
 
 image_size = 299
-batch_size = 32
-epochs = 20
+batch_size = 64
+epochs = 10
 
 num_distinct_words = 5000
 embedding_dim = 10
