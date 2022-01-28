@@ -9,37 +9,48 @@ import tensorflow as tf
 import numpy as np
 from preprocessing import *
 
-# Passing the images through the pre-trained CNN
+'''Importing InceptionV3 as our pre-trained CNN and passing our images through the model'''
+# Doing other preprocessing steps for the image before we send our image throught the network + Cache the feature maps from the network and store them
 for image in training_images:
-    image = tf.keras.application.inception_v3.preprocess_input(image)
+  # Preprocessing specific to InceptionV3
+  image = tf.keras.applications.inception_v3.preprocess_input(image)
 
-# Initialzing the model
-loading_model = tf.keras.applications.InceptionV3(include_top=False,
-                                                weights='imagenet', 
-                                                input_shape=(image_size, image_size,3))
-input_layer = loading_model.input
-output_layer = loading_model.layer[-1].output
+# Loading in our model with the fully-connected output layer removed, weights based on imagenet, and input shape of (299,299,3)
+loading_model = tf.keras.applications.InceptionV3(include_top=False, weights="imagenet", input_shape=(image_size, image_size, 3))
 
-# Creating the model
-image_model = tf.keras.Model(input_layer, output_layer)
+# Input of the network
+input = loading_model.input
+# This is the output layer of this modified network, orignally this would be the last hidden layer
+output_layer = loading_model.layers[-1].output
+# Creating our model
+image_feature_model = tf.keras.Model(input, output_layer)
 
-feature_map_dataset = []
+feature_maps_training = []
+feature_maps_validation = []
+
 batch_training_set = []
+batch_validation_set = []
 
 batching = 0
-for image in range(training_images[batching], training_images[batching+32]):
-    batch_training_set.append(image)
-    # Getting the output from the network
-    feature_maps = image_model(batch_training_set)
-    batching += 32
-    for feature in feature_maps:
-        feature_map_dataset.append(feature)
-        
-# Converting the feature map to an array
-feature_map_dataset = np.array(feature_map_dataset)
-print(feature_map_dataset.shape())
+def batching_image_dataset(batching, batch_set, dataset, new_dataset):
+  for image in range(dataset[batching], dataset[batching+32]):
+      batch_set.append(image)
+      feature_maps = loading_model(batch_set)
+      batching += 32
+      for feature in feature_maps:
+        new_dataset.append(feature)
 
-# Building the LSTM:
+batching_image_dataset(batching, batch_training_set, training_images, feature_maps_training)
+batching_image_dataset(batching, batch_validation_set, validation_images, feature_maps_validation)
+
+# Converting the training and validation feature maps to an array
+feature_maps_training = np.array(feature_maps_training)
+feature_maps_validation = np.array(feature_maps_validation)
+
+print(feature_maps_training.shape())
+print(feature_maps_validation.shape())
+
+# Building LSTM:
 model = Sequential()
 # Starting the model with a embedding layer
 model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
@@ -47,18 +58,18 @@ model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
 # Stacked LSTM layers
 model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.2))
 model.add(BatchNormalization(momentum=0.6))
-model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.3))
+model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.25))
 model.add(BatchNormalization(momentum=0.7))
-model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.4))
+model.add(LSTM(10, activation="relu", dropout=0.3))
 
-# After getting the output from the LSTM we will put a Linear + Softmax layer
-model.add(Activation("linear"))
-model.add(Activation("softmax"))
+# This is a temporary layer, and once I learn how to implement Beam Search that layer will be used instead
+model.add(Dense(512, activation="linear"))
+model.add(Dense(num_distinct_words, activation="softmax"))
 
-# Beam Search
+model.add(tfa.seq2seq.BeamSearchDecoder(cell=tf.keras.layers.LSTM, beam_width=4, batch_size=64, length_penalty_weight=0.0, reorder_tensor_arrays=False))
 
 model.compile(optimizer=Adam(1e-3),
               loss=SparseCategoricalCrossentropy(),
               metrics=["accuracy"])
 
-model.fit(training_images, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[validation_images, validation_captions])
+model.fit(feature_map_training, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[feature_maps_validation, validation_captions])
