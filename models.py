@@ -39,7 +39,7 @@ for image in range(training_images[batching], training_images[batching+32]):
 feature_map_dataset = np.array(feature_map_dataset)
 print(feature_map_dataset.shape())
 
-# Building LSTM:
+# Building the LSTM:
 model = Sequential()
 # Starting the model with a embedding layer
 model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
@@ -47,13 +47,15 @@ model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
 # Stacked LSTM layers
 model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.2))
 model.add(BatchNormalization(momentum=0.6))
-model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.25))
 model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.3))
 model.add(BatchNormalization(momentum=0.7))
-model.add(LSTM(10, activation="relu", return_sequences=True, dropout=0.4))
+model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.4))
 
-# This is a temporary layer, and once I learn how to implement Beam Search that layer will be used instead
-model.add(Dense(num_distinct_words, activation="softmax"))
+# After getting the output from the LSTM we will put a Linear + Softmax layer
+model.add(Activation("linear"))
+model.add(Activation("softmax"))
+
+# Beam Search
 
 model.compile(optimizer=Adam(1e-3),
               loss=SparseCategoricalCrossentropy(),
