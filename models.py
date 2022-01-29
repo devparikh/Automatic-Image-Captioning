@@ -43,7 +43,7 @@ for image in training_images:
 
 concatenation = 0
 for images in validation_images:
-  if concatenation <= len(0.5*validation_images):
+  if concatenation <= len(validation_images):
     validation_set = validation_images[concatenation] + validation_images[concatenation+1]
     concatenation += 2
 
