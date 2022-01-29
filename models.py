@@ -56,7 +56,6 @@ validation_feature_maps = np.array(validation_feature_maps)
 
 print(training_feature_maps.shape())
 print(validation_feature_maps.shape())
-
 # Building LSTM:
 model = Sequential()
 # Starting the model with a embedding layer
@@ -69,11 +68,10 @@ model.add(LSTM(15, return_sequences=True, dropout=0.25))
 model.add(BatchNormalization(momentum=0.7))
 model.add(LSTM(10, dropout=0.3))
 
-# This is a temporary layer, and once I learn how to implement Beam Search that layer will be used instead
-model.add(Dense(512, activation="linear"))
+model.add(Dense(num_distinct_words, activation="linear"))
 model.add(Dense(num_distinct_words, activation="softmax"))
 
-model.add(tfa.seq2seq.BeamSearchDecoder(cell=tf.keras.layers.LSTM, beam_width=4, batch_size=64, length_penalty_weight=0.0, reorder_tensor_arrays=False))
+model.add(tfa.seq2seq.BeamSearchDecoder(cell=keras.layers.Layer, beam_width=4, batch_size=64, length_penalty_weight=0.0, reorder_tensor_arrays=False))
 
 model.compile(optimizer=Adam(1e-3),
               loss=SparseCategoricalCrossentropy(),
