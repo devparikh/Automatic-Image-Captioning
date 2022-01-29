@@ -8,15 +8,6 @@ from tensorflow.keras.models import Sequential
 import tensorflow as tf
 import numpy as np
 from preprocessing import *
-from operator import concat
-import tensorflow as tf
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.layers import Embedding, LSTM, Dense, BatchNormalization
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.losses import SparseCategoricalCrossentropy
-from tensorflow.keras.models import Sequential
-import tensorflow as tf
-import numpy as np
 
 '''Importing InceptionV3 as our pre-trained CNN and passing our images through the model'''
 
