@@ -63,11 +63,11 @@ model = Sequential()
 model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
 
 # Stacked LSTM layers
-model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.2))
+model.add(LSTM(15, return_sequences=True, dropout=0.2))
 model.add(BatchNormalization(momentum=0.6))
-model.add(LSTM(10, activation="relu", return_sequences=True, return_state=True, dropout=0.25))
+model.add(LSTM(15, return_sequences=True, dropout=0.25))
 model.add(BatchNormalization(momentum=0.7))
-model.add(LSTM(10, activation="relu", dropout=0.3))
+model.add(LSTM(10, dropout=0.3))
 
 # This is a temporary layer, and once I learn how to implement Beam Search that layer will be used instead
 model.add(Dense(512, activation="linear"))
@@ -79,4 +79,4 @@ model.compile(optimizer=Adam(1e-3),
               loss=SparseCategoricalCrossentropy(),
               metrics=["accuracy"])
 
-model.fit(feature_map_training, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[feature_maps_validation, validation_captions])
+model.fit(training_feature_maps, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[validation_feature_maps, validation_captions])
