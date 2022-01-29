@@ -8,8 +8,18 @@ from tensorflow.keras.models import Sequential
 import tensorflow as tf
 import numpy as np
 from preprocessing import *
+from operator import concat
+import tensorflow as tf
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.layers import Embedding, LSTM, Dense, BatchNormalization
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.models import Sequential
+import tensorflow as tf
+import numpy as np
 
 '''Importing InceptionV3 as our pre-trained CNN and passing our images through the model'''
+
 # Doing other preprocessing steps for the image before we send our image throught the network + Cache the feature maps from the network and store them
 for image in training_images:
   # Preprocessing specific to InceptionV3
@@ -21,34 +31,31 @@ loading_model = tf.keras.applications.InceptionV3(include_top=False, weights="im
 # Input of the network
 input = loading_model.input
 # This is the output layer of this modified network, orignally this would be the last hidden layer
-output_layer = loading_model.layers[-1].output
+hidden_layers = loading_model.layers[-1].output
 # Creating our model
-image_feature_model = tf.keras.Model(input, output_layer)
+image_feature_model = tf.keras.Model(input, hidden_layers)
 
-feature_maps_training = []
-feature_maps_validation = []
+concatenation = 0
+for image in training_images:
+  if concatenation <= len(training_images):
+    training_set = training_images[concatenation] + training_images[concatenation+1]
+    concatenation += 2
 
-batch_training_set = []
-batch_validation_set = []
+concatenation = 0
+for images in validation_images:
+  if concatenation <= len(0.5*validation_images):
+    validation_set = validation_images[concatenation] + validation_images[concatenation+1]
+    concatenation += 2
 
-batching = 0
-def batching_image_dataset(batching, batch_set, dataset, new_dataset):
-  for image in range(dataset[batching], dataset[batching+32]):
-      batch_set.append(image)
-      feature_maps = loading_model(batch_set)
-      batching += 32
-      for feature in feature_maps:
-        new_dataset.append(feature)
-
-batching_image_dataset(batching, batch_training_set, training_images, feature_maps_training)
-batching_image_dataset(batching, batch_validation_set, validation_images, feature_maps_validation)
+training_feature_maps = image_feature_model(training_set)
+validation_feature_maps = image_feature_model(validation_set)
 
 # Converting the training and validation feature maps to an array
-feature_maps_training = np.array(feature_maps_training)
-feature_maps_validation = np.array(feature_maps_validation)
+training_feature_maps = np.array(training_feature_maps)
+validation_feature_maps = np.array(validation_feature_maps)
 
-print(feature_maps_training.shape())
-print(feature_maps_validation.shape())
+print(training_feature_maps.shape())
+print(validation_feature_maps.shape())
 
 # Building LSTM:
 model = Sequential()
