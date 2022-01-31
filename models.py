@@ -1,4 +1,3 @@
-# Importing all the libraries for the model part of the project
 import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.layers import Embedding, LSTM, Dense, BatchNormalization
@@ -7,17 +6,10 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from tensorflow.keras.models import Sequential
 import tensorflow as tf
 import numpy as np
-from preprocessing import *
 
 '''Importing InceptionV3 as our pre-trained CNN and passing our images through the model'''
-
-# Doing other preprocessing steps for the image before we send our image throught the network + Cache the feature maps from the network and store them
-for image in training_images:
-  # Preprocessing specific to InceptionV3
-  image = tf.keras.applications.inception_v3.preprocess_input(image)
-
 # Loading in our model with the fully-connected output layer removed, weights based on imagenet, and input shape of (299,299,3)
-loading_model = tf.keras.applications.InceptionV3(include_top=False, weights="imagenet", input_shape=(image_size, image_size, 3))
+loading_model = VGG16(include_top=False, weights="imagenet", input_shape=(image_size, image_size, 3))
 
 # Input of the network
 input = loading_model.input
@@ -26,24 +18,27 @@ hidden_layers = loading_model.layers[-1].output
 # Creating our model
 image_feature_model = tf.keras.Model(input, hidden_layers)
 
-concatenation = 0
-for image in training_images:
-  if concatenation <= len(training_images):
-    training_set = training_images[concatenation] + training_images[concatenation+1]
-    concatenation += 2
+batching = int(0.25*len(training_images))
 
-concatenation = 0
-for images in validation_images:
-  if concatenation <= len(validation_images):
-    validation_set = validation_images[concatenation] + validation_images[concatenation+1]
-    concatenation += 2
+training_batch_1 = training_images[:batching]
+training_batch_3 = training_images[-batching:]
 
-training_feature_maps = image_feature_model(training_set)
-validation_feature_maps = image_feature_model(validation_set)
+training_batch_1_maps = loading_model.predict(training_batch_1)
+#training_batch_2_maps = loading_model.predict(training_batch_2)
+training_batch_3_maps = loading_model.predict(training_batch_3)
+#training_batch_4_maps = loading_model.predict(training_batch_4)
 
-# Converting the training and validation feature maps to an array
-training_feature_maps = np.array(training_feature_maps)
-validation_feature_maps = np.array(validation_feature_maps)
+training_feature_maps = np.concatenate((training_batch_1_maps, training_batch_3_maps), axis=None)
+
+del training_batch_1
+del training_batch_3
+
+validation_feature_maps = []
+feature_maps = loading_model.predict(validation_images)
+validation_feature_maps.append(feature_maps)
+
+print(training_feature_maps.shape)
+print(validation_feature_maps.shape)
 
 print(training_feature_maps.shape())
 print(validation_feature_maps.shape())
