@@ -21,7 +21,6 @@ from keras.applications.vgg16 import VGG16
 image_set = "/content/Images"
 image_dataset = []
 
-
 image_size = 224
 batch_size = 64
 epochs = 10 
@@ -119,9 +118,6 @@ def image_caption_separation(image_captioning_set, new_image_dataset, new_captio
 image_caption_separation(unzipped_training_dataset, training_images, training_captions)
 image_caption_separation(unzipped_validation_dataset, validation_images, validation_captions)
 image_caption_separation(unzipped_testing_dataset, testing_images, testing_captions)
-
-# Problem:
-# Figure out how to remove the image dataset and caption datset from the list that is stored in
 
 training_images = np.array(training_images)
 validation_images = np.array(validation_images)
