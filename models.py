@@ -21,8 +21,6 @@ image_feature_model = tf.keras.Model(input, hidden_layers)
 batching = int(0.25*len(training_images))
 half_batch = int(0.5*len(training_images))
 
-training_feature_maps = []
-
 training_batch_1 = training_images[:batching]
 training_batch_2 = training_images[batching:half_batch]
 training_batch_3 = training_images[half_batch:-batching]
@@ -34,22 +32,29 @@ training_batch_2_maps = loading_model.predict(training_batch_2)
 training_batch_3_maps = loading_model.predict(training_batch_3)
 training_batch_4_maps = loading_model.predict(training_batch_4)
 
+training_feature_maps = np.concatenate((training_batch_1_maps, training_batch_2_maps, training_batch_3_maps, training_batch_4_maps), axis=None)
+
 # Deleting all of the batches to free up RAM
 del training_batch_1
 del training_batch_2
 del training_batch_3
 del training_batch_4
 
-training_feature_maps = np.concatenate((training_batch_1_maps, training_batch_2_maps, training_batch_3_maps, training_batch_4_maps), axis=None)
-
 # Passing the validation set completely as the number of samples are not as large as the training dataset
-feature_maps = loading_model.predict(validation_images)
-for feature_map in feature_maps:
-  feature_map_array = np.array(feature_map)
-  validation_feature_maps = np.concatenate(feature_map_array, axis=None)
+feature_maps_validation = loading_model.predict(validation_images)
+feature_maps_testing = loading_model.predict(testing_images)
+
+for feature_map in feature_maps_validation:
+  validation_feature_map_array = np.array(feature_map)
+  validation_feature_maps = np.concatenate(validation_feature_map_array, axis=None)
+
+for feature_map in feature_maps_testing:
+  testing_feature_map_array = np.array(feature_map)
+  testing_feature_maps = np.concatenate(testing_feature_map_array, axis=None)
 
 print(training_feature_maps.shape)
 print(validation_feature_maps.shape)
+print(testing_feature_maps)
 
 # Building LSTM:
 model = Sequential()
