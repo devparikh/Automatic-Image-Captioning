@@ -73,46 +73,68 @@ caption_set = tf.keras.preprocessing.sequence.pad_sequences(caption_set, maxlen=
 
 # Zipping together the 2 datasets 
 image_captioning = list(zip(image_dataset, caption_set))
+
 # Shuffling the zipped dataset because we don't want sets to be in orders when we split into training and testing data
 random.shuffle(image_captioning)
 
 # We are getting the split percentage for the training and testing sets 90% Training and 10% Testing
-split_percentage = int(0.9*len(image_captioning))
+split_percentage = int(0.8*len(image_captioning))
 
 # Splitting up the training and testing sets
-train_image_captioning = image_captioning[:split_percentage]
+training_image_captioning = image_captioning[:split_percentage]
 validation_image_captioning = image_captioning[split_percentage:]
 
-print(len(validation_image_captioning))
-print(len(train_image_captioning))
+#print(len(validation_image_captioning))
+#print(len(training_image_captioning))
+
+testing_image_captioning = []
+testing = 0
+
+for image_caption in validation_image_captioning[:10]:
+  testing_image_captioning.append(image_caption)
+
+validation_image_captioning = validation_image_captioning[10:]
 
 # Unzipping the zipped training dataset into images and captions
-unzipped_training_dataset = list(zip(*train_image_captioning))
+unzipped_training_dataset = list(zip(*training_image_captioning))
 unzipped_validation_dataset = list(zip(*validation_image_captioning))
+unzipped_testing_dataset = list(zip(*testing_image_captioning))
 
 training_images = []
-training_captions = []
-
 validation_images = []
+testing_images = []
+
+training_captions = []
 validation_captions = []
+testing_captions = []
 
 def image_caption_separation(image_captioning_set, new_image_dataset, new_caption_dataset):
     # Iterating over the new list where position 1 contains a list of images and position 2 contains all of the captions
     for image in image_captioning_set[0]:
-        new_image_dataset.append(image)
+      new_image_dataset.append(image)
 
     for caption in image_captioning_set[1]:
-        new_caption_dataset.append(caption)
+      new_caption_dataset.append(caption)
 
 image_caption_separation(unzipped_training_dataset, training_images, training_captions)
 image_caption_separation(unzipped_validation_dataset, validation_images, validation_captions)
+image_caption_separation(unzipped_testing_dataset, testing_images, testing_captions)
 
-print(len(training_images))
-print(len(training_captions))
+# Problem:
+# Figure out how to remove the image dataset and caption datset from the list that is stored in
 
-# Converting the datasets to numpy arrays for the models
 training_images = np.array(training_images)
 validation_images = np.array(validation_images)
+testing_images = np.array(testing_images)
+
+training_captions = np.array(training_captions)
+validation_captions = np.array(validation_captions)
+testing_captions = np.array(testing_captions)
 
 print(training_images.shape)
 print(validation_images.shape)
+print(testing_images.shape)
+
+print(training_captions.shape)
+print(validation_captions.shape)
+print(testing_captions.shape)
