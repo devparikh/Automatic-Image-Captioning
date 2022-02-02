@@ -7,7 +7,7 @@ from tensorflow.keras.models import Sequential
 import tensorflow as tf
 import numpy as np
 
-'''Importing InceptionV3 as our pre-trained CNN and passing our images through the model'''
+'''Importing VGG16 as our pre-trained CNN and passing our images through the model'''
 # Loading in our model with the fully-connected output layer removed, weights based on imagenet, and input shape of (299,299,3)
 loading_model = VGG16(include_top=False, weights="imagenet", input_shape=(image_size, image_size, 3))
 
@@ -19,29 +19,38 @@ hidden_layers = loading_model.layers[-1].output
 image_feature_model = tf.keras.Model(input, hidden_layers)
 
 batching = int(0.25*len(training_images))
+half_batch = int(0.5*len(training_images))
+
+training_feature_maps = []
 
 training_batch_1 = training_images[:batching]
-training_batch_3 = training_images[-batching:]
+training_batch_2 = training_images[batching:half_batch]
+training_batch_3 = training_images[half_batch:-batching]
+training_batch_4 = training_images[-batching:]
 
+# Making predictions on each of the batches
 training_batch_1_maps = loading_model.predict(training_batch_1)
-#training_batch_2_maps = loading_model.predict(training_batch_2)
+training_batch_2_maps = loading_model.predict(training_batch_2)
 training_batch_3_maps = loading_model.predict(training_batch_3)
-#training_batch_4_maps = loading_model.predict(training_batch_4)
+training_batch_4_maps = loading_model.predict(training_batch_4)
 
-training_feature_maps = np.concatenate((training_batch_1_maps, training_batch_3_maps), axis=None)
-
+# Deleting all of the batches to free up RAM
 del training_batch_1
+del training_batch_2
 del training_batch_3
+del training_batch_4
 
-validation_feature_maps = []
+training_feature_maps = np.concatenate((training_batch_1_maps, training_batch_2_maps, training_batch_3_maps, training_batch_4_maps), axis=None)
+
+# Passing the validation set completely as the number of samples are not as large as the training dataset
 feature_maps = loading_model.predict(validation_images)
-validation_feature_maps.append(feature_maps)
+for feature_map in feature_maps:
+  feature_map_array = np.array(feature_map)
+  validation_feature_maps = np.concatenate(feature_map_array, axis=None)
 
 print(training_feature_maps.shape)
 print(validation_feature_maps.shape)
 
-print(training_feature_maps.shape())
-print(validation_feature_maps.shape())
 # Building LSTM:
 model = Sequential()
 # Starting the model with a embedding layer
