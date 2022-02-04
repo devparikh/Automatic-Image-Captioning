@@ -26,7 +26,7 @@ batch_size = 64
 epochs = 10 
 
 num_distinct_words = 5000
-embedding_dim = 10
+embedding_dim = 448
 
 for image in os.listdir(image_set):
   # Going to the image in the folder containing the image dataset and reading the file
@@ -68,7 +68,7 @@ tokenizer.fit_on_texts(caption_set)
 # Converting the text into sequences of numbers
 caption_set = tokenizer.texts_to_sequences(caption_set)
 # padding the inputs to make sure that they are all the same length when inputted into the model
-caption_set = tf.keras.preprocessing.sequence.pad_sequences(caption_set, maxlen=40, dtype="int32", padding="post", truncating="post", value=0)
+caption_set = tf.keras.preprocessing.sequence.pad_sequences(caption_set, maxlen=56, dtype="int32", padding="post", truncating="post", value=0)
 
 # Zipping together the 2 datasets 
 image_captioning = list(zip(image_dataset, caption_set))
