@@ -56,10 +56,13 @@ print(training_feature_maps.shape)
 print(validation_feature_maps.shape)
 print(testing_feature_maps)
 
+training_feature_maps = np.reshape(training_feature_maps, (6472,448))
+validation_feature_maps = np.reshape(validation_feature_maps, (1609,448))
+
 # Building LSTM:
 model = Sequential()
 # Starting the model with a embedding layer
-model.add(Embedding(num_distinct_words, embedding_dim, input_length=50))
+model.add(Embedding(num_distinct_words, embedding_dim, input_length=56))
 
 # Stacked LSTM layers
 model.add(LSTM(15, return_sequences=True, dropout=0.2))
@@ -68,10 +71,7 @@ model.add(LSTM(15, return_sequences=True, dropout=0.25))
 model.add(BatchNormalization(momentum=0.7))
 model.add(LSTM(10, dropout=0.3))
 
-model.add(Dense(num_distinct_words, activation="linear"))
 model.add(Dense(num_distinct_words, activation="softmax"))
-
-model.add(tfa.seq2seq.BeamSearchDecoder(cell=keras.layers.Layer, beam_width=4, batch_size=64, length_penalty_weight=0.0, reorder_tensor_arrays=False))
 
 model.compile(optimizer=Adam(1e-3),
               loss=SparseCategoricalCrossentropy(),
