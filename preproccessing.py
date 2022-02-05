@@ -25,8 +25,8 @@ image_size = 224
 batch_size = 64
 epochs = 10 
 
-num_distinct_words = 5000
-embedding_dim = 448
+num_distinct_words = 56
+embedding_dim = 32
 
 for image in os.listdir(image_set):
   # Going to the image in the folder containing the image dataset and reading the file
