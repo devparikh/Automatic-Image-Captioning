@@ -56,13 +56,13 @@ print(training_feature_maps.shape)
 print(validation_feature_maps.shape)
 print(testing_feature_maps)
 
-training_feature_maps = np.reshape(training_feature_maps, (6472,448))
-validation_feature_maps = np.reshape(validation_feature_maps, (1609,448))
+training_feature_maps = np.reshape(training_feature_maps, (6472,25088))
+validation_feature_maps = np.reshape(validation_feature_maps, (1609,25088))
 
 # Building LSTM:
 model = Sequential()
 # Starting the model with a embedding layer
-model.add(Embedding(num_distinct_words, embedding_dim, input_length=56))
+model.add(Embedding(num_distinct_words, embedding_dim, input_length=25088))
 
 # Stacked LSTM layers
 model.add(LSTM(15, return_sequences=True, dropout=0.2))
@@ -74,7 +74,7 @@ model.add(LSTM(10, dropout=0.3))
 model.add(Dense(num_distinct_words, activation="softmax"))
 
 model.compile(optimizer=Adam(1e-3),
-              loss=SparseCategoricalCrossentropy(),
+              loss=CategoricalCrossentropy(),
               metrics=["accuracy"])
 
 model.fit(training_feature_maps, training_captions, epochs=epochs, batch_size=batch_size, validation_data=[validation_feature_maps, validation_captions])
